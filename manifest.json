@@ -2534,11 +2534,8 @@
     "findoptimalARIMAnumbers.R": {
       "checksum": "a741569e6079fddd80e89519593fbb88"
     },
-    "index_files/figure-html/unnamed-chunk-4-1.mb.png": {
-      "checksum": "7d2894a619944512a6fe913b9b2f7eb7"
-    },
-    "index_files/figure-html/unnamed-chunk-4-1.png": {
-      "checksum": "ec80fcf1a4cc6afe4a4ab02dec61f380"
+    "index.html": {
+      "checksum": "e2a45f5451e53e87f5ae5c400c3b943b"
     },
     "index.Rmd": {
       "checksum": "5ef025550b946b816a9ca15ba2c323ab"
