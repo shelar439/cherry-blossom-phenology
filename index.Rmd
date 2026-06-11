@@ -11,6 +11,7 @@ library(ggplot2)
 library(DT)
 library(forecast)
 library(urca)
+library(ggfortify) # Explicitly added to force manifest tracking
 
 # =========================================================================
 # 1. CORE DATA PIPELINE INGESTION (004 & 005)
