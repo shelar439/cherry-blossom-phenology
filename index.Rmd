@@ -11,7 +11,7 @@ library(ggplot2)
 library(DT)
 library(forecast)
 library(urca)
-library(ggfortify) # Explicitly added to force manifest tracking
+library(ggfortify)
 
 # =========================================================================
 # 1. CORE DATA PIPELINE INGESTION (004 & 005)
@@ -133,7 +133,7 @@ ggplot(plot_subset, aes(x = Year, y = Bloom_DOY, color = as.factor(Station_ID)))
   theme_minimal()
 ```
 
-### Regional Response Contrast Map Proxy
+### Regional Response Contrast Dispersion Proxy
 
 ```{r}
 map_data <- comp %>%
@@ -144,14 +144,13 @@ map_data <- comp %>%
     Lon_Proxy   = ifelse(Station_Num < 420, 141.3 + (Station_Num %% 5)*0.2, 
                          ifelse(Station_Num < 500, 140.8 + (Station_Num %% 5)*0.2, 139.6 - (Station_Num %% 10)*0.3))
   )
-japan_outline <- map_data("world", region = "Japan")
 
-ggplot() +
-  geom_polygon(data = japan_outline, aes(x = long, y = lat, group = group), fill = "#e5e5e5", color = "#c0c0c0", linewidth = 0.4) +
-  coord_quickmap(xlim = c(128, 146), ylim = c(30, 46)) +
-  geom_point(data = map_data, aes(x = Lon_Proxy, y = Lat_Proxy, fill = Total_Bloom_Shift), size = 4, shape = 21, color = "#2c3e50", stroke = 0.6, alpha = 0.9) +
+ggplot(map_data, aes(x = Lon_Proxy, y = Lat_Proxy, fill = Total_Bloom_Shift)) +
+  geom_point(size = 4.5, shape = 21, color = "#2c3e50", stroke = 0.7, alpha = 0.9) +
   scale_fill_gradientn(colors = c("#d81b60", "#f48fb1", "#e0e0e0", "#4db6ac", "#00695c"), name = "Shift Days") +
-  theme_minimal() + theme(panel.background = element_rect(fill = "#edf4f9", color = NA), panel.grid.minor = element_blank())
+  labs(subtitle = "Latitudinal Matrix Shift Velocity Scatter Array", x = "Proxy Longitude Vector", y = "Proxy Latitude Vector") +
+  theme_minimal() + 
+  theme(panel.background = element_rect(fill = "#fdfbfb", color = NA), panel.grid.minor = element_blank())
 ```
 
 ## Row {data-height=300}
@@ -193,7 +192,6 @@ tokyo_forecast <- forecast(optimal_arima, h = 10)
 autoplot(tokyo_forecast) +
   labs(
     subtitle = paste("Optimal Identification Model:", optimal_arima$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
-
     x = "Observation Timeline", y = "Julian Day of Year"
   ) +
   theme_minimal()
