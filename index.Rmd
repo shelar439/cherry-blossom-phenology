@@ -79,11 +79,9 @@ comp <- inner_join(bloom_slopes, flow_slopes, by="Station_ID", suffix=c("_Bloom"
   mutate(Total_Bloom_Shift = Rate_Bloom * 73)
 ```
 
-Historical Trends & Spatial Matrices {data-icon="fa-chart-area"}
-=======================================================================
+# Historical Trends & Spatial Matrices {data-icon="fa-chart-area" data-orientation=rows}
 
-Row {data-height=110}
------------------------------------------------------------------------
+## Row {data-height=110}
 
 ### Network-Wide Peak Bloom Shift Rate
 
@@ -115,8 +113,7 @@ valueBox(
 )
 ```
 
-Row {data-height=400}
------------------------------------------------------------------------
+## Row {data-height=400}
 
 ### Peak Bloom Macro Trajectory Tracking
 
@@ -156,8 +153,7 @@ ggplot() +
   theme_minimal() + theme(panel.background = element_rect(fill = "#edf4f9", color = NA), panel.grid.minor = element_blank())
 ```
 
-Row {data-height=300}
------------------------------------------------------------------------
+## Row {data-height=300}
 
 ### Searchable Station Inventory Metrics
 
@@ -181,11 +177,9 @@ formatStyle(table = base_table, columns = 'Total Shift', backgroundColor = style
 ```
 
 
-Predictive Stochastic Forecasting {data-icon="fa-magic"}
-=======================================================================
+# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=rows}
 
-Row
------------------------------------------------------------------------
+## Row
 
 ### Tokyo Central Stochastic ARIMA Projections (10-Year Boundary)
 
@@ -197,7 +191,7 @@ tokyo_forecast <- forecast(optimal_arima, h = 10)
 
 autoplot(tokyo_forecast) +
   labs(
-   subtitle = paste("Optimal Identification Model:", optimal_arima$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
+    subtitle = paste("Optimal Identification Model:", optimal_arima\$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
     x = "Observation Timeline", y = "Julian Day of Year"
   ) +
   theme_minimal()
