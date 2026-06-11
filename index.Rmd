@@ -191,7 +191,8 @@ tokyo_forecast <- forecast(optimal_arima, h = 10)
 
 autoplot(tokyo_forecast) +
   labs(
-    subtitle = paste("Optimal Identification Model:", optimal_arima\$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
+    subtitle = paste("Optimal Identification Model:", optimal_arima$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
+
     x = "Observation Timeline", y = "Julian Day of Year"
   ) +
   theme_minimal()
