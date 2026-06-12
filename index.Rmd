@@ -181,61 +181,11 @@ formatStyle(table = base_table, columns = 'Total Shift', backgroundColor = style
 ```
 
 
-# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
-
-## Sidebar {.sidebar}
-
-### Dynamic Selection Terminal
-
-```{r}
-selectInput(
-  inputId  = "selected_station",
-  label    = "Choose Target Meteorological Station:",
-  choices  = menu_choices,
-  selected = "626"
-)
-```
-
-Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
-
-Selecting an ID triggers an automated recalculation matrix:
-* Recopies local data limits
-* Re-evaluates unit root presence
-* Identifies optimal (p, d, q) lags
-* Projects confidence horizons out to 2036
-
-## Column {data-width=550}
-
-# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
-
-## Sidebar {.sidebar}
-
-### Dynamic Selection Terminal
-
-```{r}
-selectInput(
-  inputId  = "selected_station",
-  label    = "Choose Target Meteorological Station:",
-  choices  = menu_choices,
-  selected = "626"
-)
-```
-
-Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
-
-Selecting an ID triggers an automated recalculation matrix:
-* Recopies local data limits
-* Re-evaluates unit root presence
-* Identifies optimal (p, d, q) lags
-* Projects confidence horizons out to 2036
-
-## Column {data-width=550}
-
 # Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=rows}
 
-## Row {data-height=750}
+## Row {data-height=850}
 
-### Dynamic Selection Terminal {.sidebar}
+### Dynamic Selection Terminal {.sidebar data-width=250}
 
 ```{r}
 selectInput(
@@ -254,7 +204,7 @@ Selecting an ID triggers an automated recalculation matrix:
 * Identifies optimal (p, d, q) lags
 * Projects confidence horizons out to 2036
 
-### Automated Stochastic ARIMA Projections (10-Year Boundary View)
+### Automated Stochastic ARIMA Projections (10-Year Boundary View) {.tabset}
 
 ```{r}
 renderPlot({
@@ -267,7 +217,6 @@ renderPlot({
   fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
   fc_array  <- forecast(fit_arima, h = 10)
   
-   # Deconstruct the forecast time series object into clean explicit vectors
   history_df <- data.frame(
     Year  = as.numeric(time(station_ts)), 
     Value = as.numeric(station_ts),
@@ -286,7 +235,6 @@ renderPlot({
     stringsAsFactors = FALSE
   )
   
-  # Connect the historical line vector to the forecast vector seamlessly by adding a bridge row
   max_idx <- which.max(history_df[["Year"]])
   
   bridge_row <- data.frame(
@@ -300,16 +248,14 @@ renderPlot({
   )
   
   fc_df <- rbind(bridge_row, fc_df)
-
-   
-  # Build a 100% native ggplot to guarantee complete cherry blossom color synchronization
+  
   ggplot() +
     geom_ribbon(data = fc_df, aes(x = Year, ymin = Lower95, ymax = Upper95), fill = "#fad0c4", alpha = 0.5) +
     geom_ribbon(data = fc_df, aes(x = Year, ymin = Lower80, ymax = Upper80), fill = "#fbc2eb", alpha = 0.6) +
     geom_line(data = history_df %>% filter(Year >= max(Year) - 30), aes(x = Year, y = Value), color = "#d81b60", linewidth = 1.2) +
     geom_line(data = fc_df, aes(x = Year, y = Value), color = "#d81b60", linewidth = 1.2, linetype = "dashed") +
     labs(
-      subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
+      subtitle = paste("Optimal Model Configuration:", fit_arima[["method"]], "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
     ) +
     theme_minimal()
@@ -338,12 +284,11 @@ renderUI({
     "The historical timeline for this location yields a calculated ADF test statistic of <strong>", 
     round(summary(adf_test)@teststat, 4), "</strong> against a standard 5% Critical Value threshold of <strong>-3.45</strong>. If the test statistic is more negative than -3.45, we reject the null hypothesis of a unit root, confirming the series is trend-stationary.<br><br>",
     "<strong>Model Selection & Coefficients: </strong><br>",
-    "The underlying Akaike Information Criterion system selected an optimal <strong>", fit_arima$method, "</strong> framework topology profile matrix for this dataset.<br><br>",
+    "The underlying Akaike Information Criterion system selected an optimal <strong>", fit_arima[["method"]], "</strong> framework topology profile matrix for this dataset.<br><br>",
     "<strong>Deterministic vs. Stochastic Modeling Dynamics</strong><br>",
     "Unlike a rigid linear trend that projects an infinite downward slide, the automated stochastic ARIMA engine balances structural drift against auto-correlated moving dampeners. For this station, the projected median 10-year expectation remains bound to a steady baseline, treating past extreme shifts as stochastic anomaly shocks rather than permanent baseline acceleration."
   )
   
-  # Pass the overflow-y auto tag directly inside to create a clean text scrolling window
   tags$div(style = "overflow-y: auto; height: 100%; padding: 15px;", HTML(text_payload))
 })
 ```
