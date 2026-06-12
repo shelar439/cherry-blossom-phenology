@@ -3,7 +3,7 @@
   "locale": "C",
   "platform": "4.6.0",
   "metadata": {
-    "appmode": "rmd-static",
+    "appmode": "rmd-shiny",
     "primary_rmd": "index.Rmd",
     "primary_html": null,
     "content_category": null,
@@ -2002,7 +2002,7 @@
         "Maintainer": "Carson Sievert <carson@posit.co>",
         "Repository": "RSPM",
         "Date/Publication": "2026-02-20 09:00:03 UTC",
-        "Built": "R 4.6.0; ; 2026-06-11 14:30:49 UTC; unix",
+        "Built": "R 4.6.0; ; 2026-06-12 13:20:21 UTC; unix",
         "RemoteType": "standard",
         "RemotePkgRef": "shiny",
         "RemoteRef": "shiny",
@@ -2588,6 +2588,9 @@
     "advancedtimeseriesdiagnostic.R": {
       "checksum": "dfd81625c9d6f30a64137ef68edcad59"
     },
+    "Automated Monitoring Script: Real-Time Prediction Breach Scanner.R": {
+      "checksum": "a0d842bce7ad8c46695dab579382bf96"
+    },
     "dataingestionpipeline.R": {
       "checksum": "0f8731e51fb8e03b506be7c2658f329a"
     },
@@ -2601,6 +2604,12 @@
       "checksum": "e2a45f5451e53e87f5ae5c400c3b943b"
     },
     "index.Rmd": {
+      "checksum": "29187c9ad1fa8212187498415dacf33a"
+    },
+    "Lab Assignment: Extension of the Stochastic ARIMA Phenology App.Rmd": {
+      "checksum": "1cb7d676110df0febf161284c117ba89"
+    },
+    "oldindex.Rmd": {
       "checksum": "b6b3f4b18f9750b54b334bbe4e46f351"
     }
   },

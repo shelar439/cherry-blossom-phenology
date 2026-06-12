@@ -1,6 +1,7 @@
 ---
-title: "🌸 Cherry Blossom Climate Phenology & Forecasting Hub (1953 - 2026)"
+title: "🌸 Cherry Blossom Climate Phenology & Predictive Forecasting Hub"
 output: flexdashboard::flex_dashboard
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +13,7 @@ library(DT)
 library(forecast)
 library(urca)
 library(ggfortify)
+library(shiny)
 
 # =========================================================================
 # 1. CORE DATA PIPELINE INGESTION (004 & 005)
@@ -78,8 +80,16 @@ flow_slopes  <- calc_slopes(df_flow, "Flow_DOY")
 
 comp <- inner_join(bloom_slopes, flow_slopes, by="Station_ID", suffix=c("_Bloom", "_Flow")) %>%
   mutate(Total_Bloom_Shift = Rate_Bloom * 73)
-```
 
+city_lookup <- data.frame(
+  Station_ID = c("626", "401", "406", "407", "409", "412", "413", "417", "418", "420", "423", "428", "430", "433", "435", "575", "581", "582", "584", "585", "587", "588", "590", "595", "759", "762", "827", "891"),
+  City_Name  = c("Tokyo (Central)", "Wakkanai", "Rumoi", "Asahikawa", "Abashiri", "Sapporo", "Nemuro", "Hakodate", "Kushiro", "Muroran", "Urakawa", "Esashi", "Hakodate-Base", "Kutchan", "Mombetsu", "Fukui", "Tsuruga", "Nagoya", "Gifu", "Takayama", "Shizuoka", "Omaezaki", "Mishima", "Kofu", "Kyoto", "Osaka", "Nagasaki", "Kagoshima"),
+  stringsAsFactors = FALSE
+)
+
+menu_choices        <- city_lookup[["Station_ID"]]
+names(menu_choices) <- city_lookup[["City_Name"]]
+```
 # Historical Trends & Spatial Matrices {data-icon="fa-chart-area" data-orientation=rows}
 
 ## Row {data-height=110}
@@ -158,12 +168,6 @@ ggplot(map_data, aes(x = Lon_Proxy, y = Lat_Proxy, fill = Total_Bloom_Shift)) +
 ### Searchable Station Inventory Metrics
 
 ```{r}
-city_lookup <- data.frame(
-  Station_ID = c("401", "406", "407", "409", "412", "413", "417", "418", "420", "423", "428", "430", "433", "435", "575", "581", "582", "584", "585", "587", "588", "590", "595", "626", "759", "762", "827", "891"),
-  City_Name  = c("Wakkanai", "Rumoi", "Asahikawa", "Abashiri", "Sapporo", "Nemuro", "Hakodate", "Kushiro", "Muroran", "Urakawa", "Esashi", "Hakodate-Base", "Kutchan", "Mombetsu", "Fukui", "Tsuruga", "Nagoya", "Gifu", "Takayama", "Shizuoka", "Omaezaki", "Mishima", "Kofu", "Tokyo (Central)", "Kyoto", "Osaka", "Nagasaki", "Kagoshima"),
-  stringsAsFactors = FALSE
-)
-
 final_table_data <- comp %>%
   left_join(city_lookup, by = "Station_ID") %>%
   mutate(City_Name = ifelse(is.na(City_Name), paste("Regional Station", Station_ID), City_Name)) %>%
@@ -177,32 +181,80 @@ formatStyle(table = base_table, columns = 'Total Shift', backgroundColor = style
 ```
 
 
-# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=rows}
+# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
 
-## Row
+## Sidebar {.sidebar}
 
-### Tokyo Central Stochastic ARIMA Projections (10-Year Boundary)
+### Dynamic Selection Terminal
 
 ```{r}
-tokyo_bloom <- df_bloom %>% filter(Station_ID == "626") %>% arrange(Year)
-tokyo_ts    <- ts(tokyo_bloom[["Bloom_DOY"]], start = 1953, frequency = 1)
-optimal_arima  <- auto.arima(tokyo_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
-tokyo_forecast <- forecast(optimal_arima, h = 10)
-
-autoplot(tokyo_forecast) +
-  labs(
-    subtitle = paste("Optimal Identification Model:", optimal_arima$method, "| Shaded Bounds represent 80% & 95% Confidence Intervals"),
-    x = "Observation Timeline", y = "Julian Day of Year"
-  ) +
-  theme_minimal()
+selectInput(
+  inputId  = "selected_station",
+  label    = "Choose Target Meteorological Station:",
+  choices  = menu_choices,
+  selected = "626"
+)
 ```
 
-### Time-Series Econometric Interpretation For Class Data
+Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
 
-**The Unit Root Diagnostic (Augmented Dickey-Fuller Specification)**  
-The historical timeline for Tokyo yields an ADF test statistic of **-5.7516**, significantly outperforming the 5% Critical Value threshold of **-3.45**. We strongly reject the null hypothesis ($H_0$) of a unit root. The series is confirmed to be **trend-stationary**. 
+Selecting an ID triggers an automated recalculation matrix:
+* Recopies local data limits
+* Re-evaluates unit root presence
+* Identifies optimal (p, d, q) lags
+* Projects confidence horizons out to 2036
 
-**Deterministic vs. Stochastic Modeling Dynamics**  
-While yesterday's OLS linear model fits a rigid *deterministic* slope that assumes infinite downward progression, the automated stochastic **ARIMA(0,1,1)** engine identifies a different architecture. 
+## Column {data-width=550}
 
-Because year-to-year climatic variance is highly volatile, the ARIMA system balances the historical drift against a heavy Moving Average dampener parameter ($\theta_1 = -0.8644$). Rather than projecting an endless drop, the stochastic model forecasts that the timeline will settle and stabilize around a baseline of **Day 91.95** (April 1st/2nd), attributing earlier anomalies to random historic shocks rather than baseline acceleration.
+### Automated Stochastic ARIMA Projections (10-Year Boundary View)
+
+```{r}
+renderPlot({
+  station_data <- df_bloom %>% 
+    filter(Station_ID == input[["selected_station"]]) %>% 
+    arrange(Year)
+  
+  station_ts <- ts(station_data[["Bloom_DOY"]], start = min(station_data[["Year"]]), frequency = 1)
+  
+  fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
+  fc_array  <- forecast(fit_arima, h = 10)
+  
+  autoplot(fc_array) +
+    labs(
+      subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Confidence Horizons"),
+      x = "Observation Timeline", y = "Julian Day of Year"
+    ) +
+    theme_minimal()
+})
+```
+
+## Column {data-width=450}
+
+### Dynamic Time-Series Econometric Interpretation
+
+```{r}
+renderUI({
+  station_data <- df_bloom %>% 
+    filter(Station_ID == input[["selected_station"]]) %>% 
+    arrange(Year)
+  
+  station_ts <- ts(station_data[["Bloom_DOY"]], start = min(station_data[["Year"]]), frequency = 1)
+  
+  fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
+  adf_test  <- ur.df(station_ts, type = "trend", lags = 1)
+  
+  loc_name  <- city_lookup %>% filter(Station_ID == input[["selected_station"]]) %>% pull(City_Name)
+  if(length(loc_name) == 0) loc_name <- paste("Station", input[["selected_station"]])
+  
+  HTML(paste0(
+    "<strong>Target Focus Location: </strong>", loc_name, " (ID: ", input[["selected_station"]], ")<br><br>",
+    "<strong>The Unit Root Diagnostic (Augmented Dickey-Fuller Specification)</strong><br>",
+    "The historical timeline for this location yields a calculated ADF test statistic of <strong>", 
+    round(summary(adf_test)@teststat, 4), "</strong> against a standard 5% Critical Value threshold of <strong>-3.45</strong>. If the test statistic is more negative than -3.45, we reject the null hypothesis of a unit root, confirming the series is trend-stationary.<br><br>",
+    "<strong>Model Selection & Coefficients: </strong><br>",
+    "The underlying Akaike Information Criterion system selected an optimal <strong>", fit_arima$method, "</strong> framework topology profile matrix for this dataset.<br><br>",
+    "<strong>Deterministic vs. Stochastic Modeling Dynamics</strong><br>",
+    "Unlike a rigid linear trend that projects an infinite downward slide, the automated stochastic ARIMA engine balances structural drift against auto-correlated moving dampeners. For this station, the projected median 10-year expectation remains bound to a steady baseline, treating past extreme shifts as stochastic anomaly shocks rather than permanent baseline acceleration."
+  ))
+})
+```
