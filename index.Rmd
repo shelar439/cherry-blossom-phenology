@@ -219,11 +219,10 @@ renderPlot({
   fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
   fc_array  <- forecast(fit_arima, h = 10)
   
-  # Synchronize both historical and forecast lines into a unified cherry color theme
-  autoplot(fc_array, include = 30) + 
+  # Paint both the historical timeline and forecast layers into absolute cherry perfection
+  autoplot(fc_array, include = 30, col = "#d81b60") + 
     autolayer(fc_array, series = "Forecast", PI = TRUE, 
               fcol = "#d81b60", shadecols = c("#fbc2eb", "#fad0c4")) +
-    scale_color_manual(values = c("#d81b60", "#d81b60")) +
     labs(
       subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
