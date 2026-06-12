@@ -206,7 +206,7 @@ Selecting an ID triggers an automated recalculation matrix:
 
 # Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
 
-## Column {.sidebar data-width=300}
+## Column {.sidebar data-width=250}
 
 ### Dynamic Selection Terminal
 
@@ -227,7 +227,7 @@ Selecting an ID triggers an automated recalculation matrix:
 * Identifies optimal (p, d, q) lags
 * Projects confidence horizons out to 2036
 
-## Column {data-width=500}
+## Column {data-width=550}
 
 ### Automated Stochastic ARIMA Projections (10-Year Boundary View)
 
@@ -287,7 +287,9 @@ renderPlot({
 })
 ```
 
-### Dynamic Time-Series Econometric Interpretation {data-width=400}
+## Column {data-width=400}
+
+### Dynamic Time-Series Econometric Interpretation
 
 ```{r}
 renderUI({
