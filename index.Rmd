@@ -219,15 +219,16 @@ renderPlot({
   fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
   fc_array  <- forecast(fit_arima, h = 10)
   
-  # Gently change the color mapping without breaking autoplot's internal structure
-  autoplot(fc_array) +
-    scale_colour_discrete(h = c(330, 350), c = 80, l = 50) + 
-    scale_fill_discrete(h = c(340, 360), c = 60, l = 85) +
+  # Deconstruct the autoplot object into explicit custom-painted cherry blossom layers
+  autoplot(fc_array, include = 30) + 
+    autolayer(fc_array, series = "Forecast", PI = TRUE, 
+              fcol = "#d81b60", shadecols = c("#fbc2eb", "#fad0c4")) +
     labs(
-      subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Confidence Horizons"),
+      subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(legend.position = "none")
 })
 ```
 
