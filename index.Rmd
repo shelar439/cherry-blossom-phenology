@@ -208,8 +208,6 @@ Selecting an ID triggers an automated recalculation matrix:
 
 ### Automated Stochastic ARIMA Projections (10-Year Boundary View)
 
-### Automated Stochastic ARIMA Projections (10-Year Boundary View)
-
 ```{r}
 renderPlot({
   station_data <- df_bloom %>% 
@@ -228,12 +226,13 @@ renderPlot({
     # Layer 2: Override the historical and projected trajectory line vector
     scale_color_manual(values = c("#2c3e50", "#d81b60")) +
     labs(
-      subtitle = paste("Optimal Model Configuration:", fit_arima\$method, "| Shading: 80% & 95% Confidence Horizons"),
+      subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
     ) +
     theme_minimal()
 })
 ```
+
 
 ## Column {data-width=450}
 
