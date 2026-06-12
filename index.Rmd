@@ -231,6 +231,29 @@ Selecting an ID triggers an automated recalculation matrix:
 
 ## Column {data-width=550}
 
+# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=rows}
+
+## Row {data-height=750}
+
+### Dynamic Selection Terminal {.sidebar}
+
+```{r}
+selectInput(
+  inputId  = "selected_station",
+  label    = "Choose Target Meteorological Station:",
+  choices  = menu_choices,
+  selected = "626"
+)
+```
+
+Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
+
+Selecting an ID triggers an automated recalculation matrix:
+* Recopies local data limits
+* Re-evaluates unit root presence
+* Identifies optimal (p, d, q) lags
+* Projects confidence horizons out to 2036
+
 ### Automated Stochastic ARIMA Projections (10-Year Boundary View)
 
 ```{r}
@@ -244,28 +267,58 @@ renderPlot({
   fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
   fc_array  <- forecast(fit_arima, h = 10)
   
-  # Global system override to catch the sneaky transition curve segment color
-  update_geom_defaults("line", list(colour = "#d81b60"))
+   # Deconstruct the forecast time series object into clean explicit vectors
+  history_df <- data.frame(
+    Year  = as.numeric(time(station_ts)), 
+    Value = as.numeric(station_ts),
+    stringsAsFactors = FALSE
+  )
   
-  # Paint both the historical timeline and forecast layers into absolute cherry perfection
-  autoplot(fc_array, include = 30, col = "#d81b60") + 
-    autolayer(fc_array, series = "Forecast", PI = TRUE, 
-              fcol = "#d81b60", shadecols = c("#fbc2eb", "#fad0c4")) +
+  fc_years <- as.numeric(time(fc_array[["mean"]]))
+  
+  fc_df <- data.frame(
+    Year    = fc_years,
+    Value   = as.numeric(fc_array[["mean"]]),
+    Lower80 = as.numeric(fc_array[["lower"]][, 1]),
+    Upper80 = as.numeric(fc_array[["upper"]][, 1]),
+    Lower95 = as.numeric(fc_array[["lower"]][, 2]),
+    Upper95 = as.numeric(fc_array[["upper"]][, 2]),
+    stringsAsFactors = FALSE
+  )
+  
+  # Connect the historical line vector to the forecast vector seamlessly by adding a bridge row
+  max_idx <- which.max(history_df[["Year"]])
+  
+  bridge_row <- data.frame(
+    Year    = history_df[["Year"]][max_idx], 
+    Value   = history_df[["Value"]][max_idx],
+    Lower80 = history_df[["Value"]][max_idx], 
+    Upper80 = history_df[["Value"]][max_idx],
+    Lower95 = history_df[["Value"]][max_idx], 
+    Upper95 = history_df[["Value"]][max_idx],
+    stringsAsFactors = FALSE
+  )
+  
+  fc_df <- rbind(bridge_row, fc_df)
+
+   
+  # Build a 100% native ggplot to guarantee complete cherry blossom color synchronization
+  ggplot() +
+    geom_ribbon(data = fc_df, aes(x = Year, ymin = Lower95, ymax = Upper95), fill = "#fad0c4", alpha = 0.5) +
+    geom_ribbon(data = fc_df, aes(x = Year, ymin = Lower80, ymax = Upper80), fill = "#fbc2eb", alpha = 0.6) +
+    geom_line(data = history_df %>% filter(Year >= max(Year) - 30), aes(x = Year, y = Value), color = "#d81b60", linewidth = 1.2) +
+    geom_line(data = fc_df, aes(x = Year, y = Value), color = "#d81b60", linewidth = 1.2, linetype = "dashed") +
     labs(
       subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
     ) +
-    theme_minimal() +
-    theme(legend.position = "none")
+    theme_minimal()
 })
 ```
-
-## Column {data-width=450}
 
 ### Dynamic Time-Series Econometric Interpretation
 
 ```{r}
-# Wrapped inside a scrollable HTML div container block to guarantee zero text cutoffs
 renderUI({
   station_data <- df_bloom %>% 
     filter(Station_ID == input[["selected_station"]]) %>% 
@@ -290,7 +343,7 @@ renderUI({
     "Unlike a rigid linear trend that projects an infinite downward slide, the automated stochastic ARIMA engine balances structural drift against auto-correlated moving dampeners. For this station, the projected median 10-year expectation remains bound to a steady baseline, treating past extreme shifts as stochastic anomaly shocks rather than permanent baseline acceleration."
   )
   
-  # Inject the scroll rule directly into the output interface container
+  # Pass the overflow-y auto tag directly inside to create a clean text scrolling window
   tags$div(style = "overflow-y: auto; height: 100%; padding: 15px;", HTML(text_payload))
 })
 ```
