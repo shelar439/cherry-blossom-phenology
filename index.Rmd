@@ -204,7 +204,32 @@ Selecting an ID triggers an automated recalculation matrix:
 * Identifies optimal (p, d, q) lags
 * Projects confidence horizons out to 2036
 
-### Automated Stochastic ARIMA Projections (10-Year Boundary View) {.tabset}
+# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
+
+## Column {.sidebar data-width=300}
+
+### Dynamic Selection Terminal
+
+```{r}
+selectInput(
+  inputId  = "selected_station",
+  label    = "Choose Target Meteorological Station:",
+  choices  = menu_choices,
+  selected = "626"
+)
+```
+
+Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
+
+Selecting an ID triggers an automated recalculation matrix:
+* Recopies local data limits
+* Re-evaluates unit root presence
+* Identifies optimal (p, d, q) lags
+* Projects confidence horizons out to 2036
+
+## Column {data-width=500}
+
+### Automated Stochastic ARIMA Projections (10-Year Boundary View)
 
 ```{r}
 renderPlot({
@@ -261,6 +286,8 @@ renderPlot({
     theme_minimal()
 })
 ```
+
+## Column {data-width=400}
 
 ### Dynamic Time-Series Econometric Interpretation
 
