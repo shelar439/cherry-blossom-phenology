@@ -206,6 +206,31 @@ Selecting an ID triggers an automated recalculation matrix:
 
 ## Column {data-width=550}
 
+# Predictive Stochastic Forecasting {data-icon="fa-magic" data-orientation=columns}
+
+## Sidebar {.sidebar}
+
+### Dynamic Selection Terminal
+
+```{r}
+selectInput(
+  inputId  = "selected_station",
+  label    = "Choose Target Meteorological Station:",
+  choices  = menu_choices,
+  selected = "626"
+)
+```
+
+Use this panel to dynamically force the background computing environment to isolate a specific historical station chronology timeline. 
+
+Selecting an ID triggers an automated recalculation matrix:
+* Recopies local data limits
+* Re-evaluates unit root presence
+* Identifies optimal (p, d, q) lags
+* Projects confidence horizons out to 2036
+
+## Column {data-width=550}
+
 ### Automated Stochastic ARIMA Projections (10-Year Boundary View)
 
 ```{r}
@@ -219,11 +244,13 @@ renderPlot({
   fit_arima <- auto.arima(station_ts, seasonal = FALSE, stepwise = FALSE, approximation = FALSE)
   fc_array  <- forecast(fit_arima, h = 10)
   
-  # Total color blanket override to eliminate the hidden blue transition segment
+  # Global system override to catch the sneaky transition curve segment color
+  update_geom_defaults("line", list(colour = "#d81b60"))
+  
+  # Paint both the historical timeline and forecast layers into absolute cherry perfection
   autoplot(fc_array, include = 30, col = "#d81b60") + 
     autolayer(fc_array, series = "Forecast", PI = TRUE, 
               fcol = "#d81b60", shadecols = c("#fbc2eb", "#fad0c4")) +
-    scale_color_manual(values = c("#d81b60", "#d81b60", "#d81b60")) +
     labs(
       subtitle = paste("Optimal Model Configuration:", fit_arima$method, "| Shading: 80% & 95% Cherry Blossom Confidence Horizons"),
       x = "Observation Timeline", y = "Julian Day of Year"
@@ -233,12 +260,12 @@ renderPlot({
 })
 ```
 
-
 ## Column {data-width=450}
 
 ### Dynamic Time-Series Econometric Interpretation
 
 ```{r}
+# Wrapped inside a scrollable HTML div container block to guarantee zero text cutoffs
 renderUI({
   station_data <- df_bloom %>% 
     filter(Station_ID == input[["selected_station"]]) %>% 
@@ -252,7 +279,7 @@ renderUI({
   loc_name  <- city_lookup %>% filter(Station_ID == input[["selected_station"]]) %>% pull(City_Name)
   if(length(loc_name) == 0) loc_name <- paste("Station", input[["selected_station"]])
   
-  HTML(paste0(
+  text_payload <- paste0(
     "<strong>Target Focus Location: </strong>", loc_name, " (ID: ", input[["selected_station"]], ")<br><br>",
     "<strong>The Unit Root Diagnostic (Augmented Dickey-Fuller Specification)</strong><br>",
     "The historical timeline for this location yields a calculated ADF test statistic of <strong>", 
@@ -261,7 +288,9 @@ renderUI({
     "The underlying Akaike Information Criterion system selected an optimal <strong>", fit_arima$method, "</strong> framework topology profile matrix for this dataset.<br><br>",
     "<strong>Deterministic vs. Stochastic Modeling Dynamics</strong><br>",
     "Unlike a rigid linear trend that projects an infinite downward slide, the automated stochastic ARIMA engine balances structural drift against auto-correlated moving dampeners. For this station, the projected median 10-year expectation remains bound to a steady baseline, treating past extreme shifts as stochastic anomaly shocks rather than permanent baseline acceleration."
-  ))
+  )
+  
+  # Inject the scroll rule directly into the output interface container
+  tags$div(style = "overflow-y: auto; height: 100%; padding: 15px;", HTML(text_payload))
 })
 ```
-
